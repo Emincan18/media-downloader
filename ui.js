@@ -236,6 +236,19 @@ async function trimPanel(video, job, name) {
     video.currentTime = parseTime(isStart ? start.value : end.value);
     sync();
   });
+  // Klick oder Ziehen auf der Leiste (nicht auf den Griffen) spult das Video vor und zurück.
+  const seek = e => {
+    const r = timeline.getBoundingClientRect();
+    video.currentTime = Math.min(Math.max((e.clientX - r.left) / r.width, 0), 1) * duration();
+  };
+  timeline.addEventListener('pointerdown', e => {
+    if (e.target.matches('input')) return;
+    stopAt = null;
+    timeline.setPointerCapture(e.pointerId);
+    seek(e);
+    timeline.onpointermove = seek;
+  });
+  timeline.addEventListener('pointerup', () => { timeline.onpointermove = null; });
   for (const input of [start, end]) input.addEventListener('change', sync);
   const actions = {
     setStart: () => { start.value = fmt(video.currentTime); sync(); },
