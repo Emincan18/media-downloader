@@ -9,6 +9,10 @@
         {
           "version": "2.4.0",
           "update_link": "https://github.com/Emincan18/media-downloader/releases/download/v2.4.0/media-downloader.xpi"
+        },
+        {
+          "version": "2.4.1",
+          "update_link": "https://github.com/Emincan18/media-downloader/releases/download/v2.4.1/media-downloader.xpi"
         }
       ]
     }
