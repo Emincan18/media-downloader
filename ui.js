@@ -172,7 +172,15 @@ async function trimPanel(video, job, name) {
   const select = h('select', { title: 'Format' }, h('option', { value: 'mp4' }, 'MP4'), h('option', { value: 'mp3' }, 'MP3'));
   const status = h('div', { class: 'xvd-trim-status' });
   const button = (act, text, attrs = {}) => h('button', { 'data-act': act, ...attrs }, text);
+  // Vorschau: Canvas spiegelt das Video der Seite. Klick = Play/Pause.
+  const canvas = h('canvas', { class: 'xvd-trim-view', title: 'Klick: Abspielen/Pause' });
+  const range = act => h('input', { type: 'range', min: '0', step: '0.1', 'data-range': act, 'aria-label': act === 'start' ? 'Start' : 'Ende' });
+  const startRange = range('start'), endRange = range('end');
+  const sel = h('div', { class: 'xvd-tl-sel' }), head = h('div', { class: 'xvd-tl-head' });
+  const timeline = h('div', { class: 'xvd-tl' }, sel, head, startRange, endRange);
   const p = h('div', { class: 'xvd-trim' },
+    canvas,
+    timeline,
     h('strong', {}, 'Zuschnitt'),
     h('label', {}, 'Start ', start),
     button('setStart', '⟦ Jetzt', { title: 'Start auf aktuelle Stelle setzen' }),
@@ -186,21 +194,63 @@ async function trimPanel(video, job, name) {
   const cancelBtn = button('cancel', '✕ Abbrechen', { hidden: '', title: 'Download abbrechen' });
   status.before(cancelBtn);
   let running = null;
+  const duration = () => (Number.isFinite(video.duration) ? video.duration : 0);
+  // Auswahl auf der Zeitleiste einfärben und Griffe an die Textfelder angleichen.
+  const sync = () => {
+    const d = duration() || 1, s = parseTime(start.value) || 0, e = parseTime(end.value) || 0;
+    startRange.max = endRange.max = String(d);
+    startRange.value = String(s);
+    endRange.value = String(e);
+    sel.style.left = `${(s / d) * 100}%`;
+    sel.style.width = `${Math.max(0, (e - s) / d) * 100}%`;
+  };
+  const resetEnd = () => { if (!parseTime(end.value)) { end.value = fmt(duration()); sync(); } };
   start.value = fmt(0);
-  end.value = fmt(Number.isFinite(video.duration) ? video.duration : 0);
+  end.value = fmt(duration());
   select.value = format;
+  sync();
+  video.addEventListener('loadedmetadata', resetEnd);
   let stopAt = null;
   const onTime = () => { if (stopAt !== null && video.currentTime >= stopAt) { video.pause(); stopAt = null; } };
   video.addEventListener('timeupdate', onTime);
+  const ctx = canvas.getContext('2d');
+  let frame = 0;
+  const draw = () => {
+    if (video.videoWidth) {
+      const w = Math.round(Math.min(480, 240 * video.videoWidth / video.videoHeight));
+      if (canvas.width !== w) { canvas.width = w; canvas.height = Math.round(w * video.videoHeight / video.videoWidth); }
+      // Zeichnen klappt auch bei Videos von fremden CDNs; das Canvas wird nur nie ausgelesen.
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    }
+    head.style.left = `${(video.currentTime / (duration() || 1)) * 100}%`;
+    frame = requestAnimationFrame(draw);
+  };
+  draw();
+  canvas.addEventListener('click', () => { stopAt = null; video.paused ? video.play() : video.pause(); });
+  timeline.addEventListener('input', e => {
+    const t = Number(e.target.value), isStart = e.target === startRange;
+    if (isStart) start.value = fmt(Math.min(t, parseTime(end.value)));
+    else end.value = fmt(Math.max(t, parseTime(start.value)));
+    stopAt = null;
+    video.pause();
+    video.currentTime = parseTime(isStart ? start.value : end.value);
+    sync();
+  });
+  for (const input of [start, end]) input.addEventListener('change', sync);
   const actions = {
-    setStart: () => { start.value = fmt(video.currentTime); },
-    setEnd: () => { end.value = fmt(video.currentTime); },
+    setStart: () => { start.value = fmt(video.currentTime); sync(); },
+    setEnd: () => { end.value = fmt(video.currentTime); sync(); },
     preview: () => {
       video.currentTime = parseTime(start.value);
       stopAt = parseTime(end.value);
       video.play();
     },
-    close: () => { video.removeEventListener('timeupdate', onTime); p.remove(); },
+    close: () => {
+      cancelAnimationFrame(frame);
+      video.removeEventListener('timeupdate', onTime);
+      video.removeEventListener('loadedmetadata', resetEnd);
+      p.remove();
+    },
     save: async () => {
       const s = parseTime(start.value), e = parseTime(end.value);
       if (!(e > s)) { status.textContent = 'Ende muss nach dem Start liegen.'; return; }
