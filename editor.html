@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <title>X Video Downloader</title>
+  <style>
+    :root { color-scheme: dark; }
+    body { margin: 0; padding: 16px; background: #000; color: #e7e9ea; font: 15px/1.4 system-ui, sans-serif; }
+    h1 { font-size: 18px; margin: 0 0 12px; }
+    video { display: block; width: 100%; max-height: 52vh; background: #111; border-radius: 12px; }
+    .row { display: flex; gap: 10px; align-items: center; margin: 10px 0; flex-wrap: wrap; }
+    .row label { width: 48px; color: #71767b; }
+    input[type=range] { flex: 1; min-width: 200px; accent-color: #1d9bf0; }
+    .time { width: 64px; font-variant-numeric: tabular-nums; }
+    select, button { font: inherit; color: inherit; background: #16181c; border: 1px solid #2f3336; border-radius: 9999px; padding: 6px 14px; }
+    button { cursor: pointer; }
+    button:hover:not(:disabled) { border-color: #1d9bf0; }
+    button:disabled { opacity: .4; cursor: default; }
+    button.main { background: #1d9bf0; border-color: #1d9bf0; font-weight: 700; }
+    progress { width: 100%; accent-color: #1d9bf0; }
+    #status { color: #71767b; min-height: 1.4em; }
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+  <h1>X Video Downloader</h1>
+  <div class="row">
+    <select id="pick" hidden></select>
+    <select id="quality" title="Qualität"></select>
+  </div>
+  <video id="player" controls></video>
+  <div class="row">
+    <label for="start">Start</label>
+    <input id="start" type="range" min="0" step="0.1" value="0">
+    <span id="startTime" class="time">0:00.0</span>
+    <button id="setStart" title="Start auf aktuelle Position setzen">⟦ Jetzt</button>
+  </div>
+  <div class="row">
+    <label for="end">Ende</label>
+    <input id="end" type="range" min="0" step="0.1" value="0">
+    <span id="endTime" class="time">0:00.0</span>
+    <button id="setEnd" title="Ende auf aktuelle Position setzen">Jetzt ⟧</button>
+  </div>
+  <div class="row">
+    <button id="preview">▶ Zuschnitt abspielen</button>
+    <button id="full">Ganzes Video (MP4)</button>
+    <select id="mode" title="Wie geschnitten wird">
+      <option value="fast">MP4 – schnell</option>
+      <option value="exact">MP4 – exakt (langsamer)</option>
+      <option value="mp3">MP3 – nur Ton</option>
+    </select>
+    <button id="cut" class="main">Zuschnitt speichern</button>
+  </div>
+  <progress id="prog" value="0" max="1" hidden></progress>
+  <div id="status">Lädt …</div>
+  <script src="quality.js"></script>
+  <script type="module" src="editor.js"></script>
+</body>
+</html>

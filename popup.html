@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <title>X Video Downloader</title>
+  <style>
+    :root { color-scheme: dark; }
+    body { margin: 0; padding: 16px; width: 280px; background: #000; color: #e7e9ea; font: 15px/1.4 system-ui, sans-serif; }
+    h1 { font-size: 16px; margin: 0 0 12px; }
+    label { display: block; margin-bottom: 6px; color: #71767b; }
+    select { width: 100%; font: inherit; color: inherit; background: #16181c; border: 1px solid #2f3336; border-radius: 9999px; padding: 6px 14px; }
+    p { margin: 10px 0 0; color: #71767b; font-size: 13px; }
+    #saved { color: #00ba7c; min-height: 1.4em; }
+    #helper { color: #e7e9ea; word-break: break-word; }
+    button { font: inherit; color: inherit; background: #16181c; border: 1px solid #2f3336; border-radius: 9999px; padding: 6px 14px; cursor: pointer; }
+    button:hover { border-color: #1d9bf0; }
+  </style>
+</head>
+<body>
+  <h1>Media Downloader</h1>
+  <label for="format">„Ganzes Video downloaden“ speichert als</label>
+  <select id="format">
+    <option value="mp4">MP4 (Video)</option>
+    <option value="mp3">MP3 (nur Ton)</option>
+  </select>
+  <p></p>
+  <label for="quality">Qualität beim Download</label>
+  <select id="quality">
+    <option value="0">Beste (größte Datei)</option>
+    <option value="1080">bis 1080p</option>
+    <option value="720">bis 720p</option>
+    <option value="480">bis 480p</option>
+    <option value="360">bis 360p (kleinste Datei)</option>
+  </select>
+  <p>Gilt für X, YouTube, TikTok und Instagram, auch als Vorauswahl beim Trimmen. Gibt es die Stufe nicht, nimmt er die nächstkleinere.</p>
+  <p id="saved"></p>
+  <label>Helfer (für YouTube, TikTok, Instagram, MP3)</label>
+  <p id="helper">wird geprüft …</p>
+  <p><button id="test" type="button">Helfer testen</button></p>
+  <script src="quality.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

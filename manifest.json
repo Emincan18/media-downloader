@@ -1,0 +1,53 @@
+{
+  "manifest_version": 2,
+  "name": "Media Downloader",
+  "version": "2.3.0",
+  "description": "Download-Knopf für X, YouTube, TikTok und Instagram: ganzes Video oder Zuschnitt, als MP4 oder MP3.",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "x-video-downloader@emincan.local",
+      "strict_min_version": "115.0",
+      "update_url": "https://raw.githubusercontent.com/Emincan18/media-downloader/main/updates.json"
+    }
+  },
+  "icons": { "48": "icon.svg", "96": "icon.svg" },
+  "browser_action": {
+    "default_title": "Media Downloader – Einstellungen",
+    "default_icon": "icon.svg",
+    "default_popup": "popup.html"
+  },
+  "options_ui": { "page": "popup.html" },
+  "permissions": [
+    "webRequest",
+    "webRequestBlocking",
+    "downloads",
+    "storage",
+    "nativeMessaging",
+    "*://*.x.com/*",
+    "*://*.twitter.com/*",
+    "*://*.twimg.com/*"
+  ],
+  "background": { "scripts": ["quality.js", "background.js"] },
+  "content_scripts": [
+    {
+      "matches": ["*://x.com/*", "*://twitter.com/*", "*://mobile.x.com/*"],
+      "js": ["quality.js", "ui.js", "content.js"],
+      "css": ["content.css"]
+    },
+    {
+      "matches": ["*://www.youtube.com/*", "*://m.youtube.com/*"],
+      "js": ["quality.js", "ui.js", "site-youtube.js"],
+      "css": ["content.css"]
+    },
+    {
+      "matches": ["*://www.tiktok.com/*"],
+      "js": ["quality.js", "ui.js", "site-tiktok.js"],
+      "css": ["content.css"]
+    },
+    {
+      "matches": ["*://www.instagram.com/*"],
+      "js": ["quality.js", "ui.js", "site-instagram.js"],
+      "css": ["content.css"]
+    }
+  ]
+}
