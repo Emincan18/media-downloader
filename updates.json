@@ -1,7 +1,12 @@
 {
   "addons": {
     "x-video-downloader@emincan.local": {
-      "updates": []
+      "updates": [
+        {
+          "version": "2.3.0",
+          "update_link": "https://github.com/Emincan18/media-downloader/releases/download/v2.3.0/media-downloader.xpi"
+        }
+      ]
     }
   }
 }
