@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Media Downloader",
-  "version": "2.5.0",
+  "version": "2.5.1",
   "description": "Download-Knopf für X, YouTube, TikTok und Instagram: ganzes Video oder Zuschnitt, als MP4 oder MP3.",
   "browser_specific_settings": {
     "gecko": {
