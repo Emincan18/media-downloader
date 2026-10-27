@@ -20,6 +20,12 @@ function scan() {
     let inner = button;
     while (inner.parentElement !== outer && inner !== outer && !inner.parentElement.tagName.includes('-')) inner = inner.parentElement;
     if (!outer.parentElement || outer.nextElementSibling?.classList.contains('xvd-native')) continue;
+    // Versteckte Teilen-Kopien (Platzmangel, z. B. nach Vollbild) bekommen keinen Knopf.
+    if (!button.getClientRects().length) continue;
+    // YouTube baut die Leiste z. B. nach dem Vollbild neu auf. Alte Knöpfe entfernen, sonst stapeln sie sich
+    // und verdrängen "Gefällt mir" und "Teilen" ins "…"-Menü.
+    const scope = button.closest('ytd-watch-metadata, ytd-reel-video-renderer') || outer.parentElement;
+    for (const old of scope.querySelectorAll('.xvd-native.xvd-yt')) old.remove();
     const { el, hit } = cloneAction(inner, 'Download');
     // Icon-Bereich komplett ersetzen: YouTube rendert dort eigene Elemente nach,
     // die sonst das Icon über den Text schieben.
