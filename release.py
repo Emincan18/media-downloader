@@ -22,7 +22,7 @@ XPI = ROOT / "dist" / "media-downloader.xpi"
 # Alles, was ins Add-on gehört (nicht helper/, README usw.).
 FILES = [
     "manifest.json", "quality.js", "ui.js", "background.js", "content.js",
-    "site-youtube.js", "site-tiktok.js", "site-instagram.js", "content.css",
+    "site-youtube.js", "site-tiktok.js", "site-instagram.js", "site-roblox.js", "content.css",
     "editor.html", "editor.js", "popup.html", "popup.js", "icon.svg",
     "mediabunny.min.mjs", "mediabunny-LICENSE.txt",
 ]
@@ -34,6 +34,14 @@ def run(*cmd):
 
 
 def build():
+    # Jede Datei, die das Manifest lädt, muss in FILES stehen, sonst fehlt sie still im Add-on.
+    manifest = json.loads((ROOT / "manifest.json").read_text(encoding="utf-8"))
+    used = set(manifest["background"]["scripts"])
+    for cs in manifest["content_scripts"]:
+        used.update(cs.get("js", []) + cs.get("css", []))
+    missing = used - set(FILES)
+    if missing:
+        sys.exit(f"Fehlt in FILES (release.py): {', '.join(sorted(missing))}")
     XPI.parent.mkdir(exist_ok=True)
     with zipfile.ZipFile(XPI, "w", zipfile.ZIP_DEFLATED) as z:
         for f in FILES:
