@@ -78,15 +78,32 @@ async function onClick(hit) {
   }
 }
 
+// Favorit-Knopf finden, unabhängig vom genauen Aufbau (eingeloggt kommt z. B. "Notify" dazu).
+// Selektoren in Reihenfolge der Verlässlichkeit; der erste sichtbare Treffer gewinnt.
+const FAVORITE = ['.game-favorite-button-container', '#toggle-game-favorite', '[class*="icon-favorite"]',
+  'button[aria-label*="favorit" i]', '[role="button"][aria-label*="favorit" i]', 'button[data-testid*="favorite" i]'];
+const VOTES = ['#voting-section', '.voting-panel', '[class*="upvote"]'];
+const first = list => list.map(s => [...document.querySelectorAll(s)].find(el => el.getClientRects().length && !el.closest('.xvd-native'))).find(Boolean);
+
 function scan() {
-  const fav = document.querySelector('.favorite-follow-vote-share > .game-favorite-button-container');
-  if (!fav || fav.parentElement.querySelector('.xvd-native')) return;
+  const anchor = first(FAVORITE);
+  if (!anchor) return;
+  // Eintrag des Favorit-Knopfs: Listeneintrag bzw. Knopf, sonst hochklettern bis neben die Like-Leiste.
+  let fav = anchor.closest('li, button');
+  if (!fav) {
+    const votes = first(VOTES);
+    fav = anchor;
+    if (votes) while (fav.parentElement && !fav.parentElement.contains(votes)) fav = fav.parentElement;
+    // Zu groß geklettert (enthält mehr als den Favorit-Knopf): beim Anker bleiben.
+    if (fav.querySelectorAll('a, button, [role="button"]').length > 1) fav = anchor;
+  }
+  if (!fav.parentElement || fav.parentElement.querySelector('.xvd-native')) return;
   const { el, hit } = cloneAction(fav, 'Download');
   for (const node of [el, ...el.querySelectorAll('*')]) {
     for (const a of [...node.attributes]) if (a.name.startsWith('data-')) node.removeAttribute(a.name);
   }
   // Stern-Sprite (CSS-Hintergrund) durch das Download-Icon ersetzen.
-  const slot = el.querySelector('.icon-favorite');
+  const slot = el.querySelector('[class*="icon-favorite"]');
   if (slot) {
     slot.className = '';
     slot.style.cssText = 'width:28px;height:28px;margin:0 auto;';
