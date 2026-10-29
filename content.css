@@ -203,3 +203,7 @@
   cursor: ew-resize;
   pointer-events: auto;
 }
+
+/* Roblox: Like-Leiste rutscht durch den Download-Knopf in eine eigene Zeile, dort mittig.
+   !important, weil Roblox' eigene Regel (float: left) spezifischer ist. */
+.xvd-roblox-bar > .voting-panel { float: none !important; clear: both; margin: 8px auto 0 !important; }

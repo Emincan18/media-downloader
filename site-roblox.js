@@ -121,6 +121,8 @@ function scan() {
     onClick(hit);
   });
   fav.after(el);
+  // Mit unserem Knopf passt die Like-Leiste nicht mehr in die Zeile: mittig darunter setzen (content.css).
+  fav.parentElement.classList.add('xvd-roblox-bar');
 }
 
 watch(scan);
