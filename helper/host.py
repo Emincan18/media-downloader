@@ -37,9 +37,50 @@ def browser_profile():
     return None
 
 
+def output_name(job):
+    # Direkte Dateien (z. B. Roblox-Trailer) haben keinen Titel; dann gibt das Add-on den Namen vor.
+    if job.get("name"):
+        return re.sub(r'[\\/:*?"<>|%]+', "", str(job["name"]))[:120]
+    return "%(uploader,channel,uploader_id)s - %(title).80B [%(id)s]"
+
+
+def ffmpeg_command(job, section, suffix):
+    # Roblox-Trailer: HLS mit einzelnen WebM-Dateien als Segmente, die yt-dlp nicht zusammensetzen kann.
+    # Jedes Segment ist eine eigene WebM-Datei mit fortlaufenden Zeitstempeln. Der concat-Filter setzt sie
+    # richtig aneinander (der concat-Demuxer würde die Zeit doppelt zählen). Ausgabe H.264/AAC (MP4) oder MP3.
+    ext = "mp3" if job.get("format") == "mp3" else "mp4"
+    audio = job.get("audio", True)
+    if ext == "mp3" and not audio:
+        raise ValueError("Dieser Trailer hat keinen Ton.")
+    final = Path.home() / "Downloads" / f"{output_name(job)}{suffix}.{ext}"
+    job["_final"] = final
+    n = len(job["segments"])
+    args = ["ffmpeg", "-hide_banner", "-loglevel", "error", "-nostdin", "-y"]
+    for url in job["segments"]:
+        args += ["-i", url]
+    streams = "".join((f"[{i}:a]" if ext == "mp3" else f"[{i}:v]" + (f"[{i}:a]" if audio else "")) for i in range(n))
+    v, a = (0, 1) if ext == "mp3" else (1, int(audio))
+    outs = ("[v]" if v else "") + ("[a]" if a else "")
+    args += ["-filter_complex", f"{streams}concat=n={n}:v={v}:a={a}{outs}"]
+    for label in ("[v]", "[a]"):
+        if label in outs:
+            args += ["-map", label]
+    if section:
+        args += ["-ss", f"{float(job['start']):.2f}", "-to", f"{float(job['end']):.2f}"]
+    if ext == "mp3":
+        args += ["-c:a", "libmp3lame", "-q:a", "0"]
+    else:
+        args += ["-c:v", "libx264", "-preset", "veryfast", "-crf", "20", "-pix_fmt", "yuv420p",
+                 "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart"]
+    # .temp. im Namen: remove_partials räumt die Datei bei einem Abbruch weg.
+    return args + ["-progress", "pipe:1", "-nostats", str(final.with_suffix(f".temp.{ext}"))]
+
+
 def command(job):
     section = job.get("start") is not None and job.get("end") is not None
     suffix = f" {float(job['start']):.1f}s-{float(job['end']):.1f}s" if section else ""
+    if job.get("segments"):
+        return ffmpeg_command(job, section, suffix)
     args = [
         sys.executable, "-m", "yt_dlp",
         "--js-runtimes", "node", "--no-playlist", "--newline", "--progress", "--no-simulate",
@@ -47,7 +88,7 @@ def command(job):
         "--progress-template", "download:XVD %(progress._percent_str)s",
         "--print", "after_move:XVDFILE %(filepath)s",
         "-P", str(Path.home() / "Downloads"),
-        "-o", "%(uploader,channel,uploader_id)s - %(title).80B [%(id)s]" + suffix + ".%(ext)s",
+        "-o", output_name(job) + suffix + ".%(ext)s",
         "--force-overwrites",
     ]
     if job.get("format") == "mp3":
@@ -120,6 +161,11 @@ def run(job):
     file, lines, last = None, [], None
     for raw in proc.stdout:
         line = raw.decode("utf-8", "replace").strip()
+        if line.startswith("out_time_us=") and job.get("duration"):
+            # ffmpeg -progress: Position in Mikrosekunden -> Prozent wie bei yt-dlp.
+            length = float(job["end"]) - float(job["start"]) if job.get("end") is not None else float(job["duration"])
+            done = int(line[12:]) if line[12:].isdigit() else 0  # am Anfang meldet ffmpeg "N/A"
+            line = f"XVD {min(100, done / 1e4 / max(length, 0.1)):.1f}%"
         if line.startswith("XVD "):
             pct = line[4:].strip().split(".")[0]
             if pct != last:
@@ -130,13 +176,18 @@ def run(job):
         elif line:
             lines.append(line)
     proc.wait()
+    final = job.get("_final")
+    if final and proc.returncode == 0 and not cancelled.is_set():
+        final.unlink(missing_ok=True)
+        final.with_suffix(f".temp{final.suffix}").rename(final)
+        file = str(final)
     if cancelled.is_set():
         remove_partials(started)
         return
     if proc.returncode == 0:
         send({"done": True, "file": file})
     else:
-        errors = [l for l in lines if l.startswith("ERROR")] or lines or [f"yt-dlp Fehlercode {proc.returncode}"]
+        errors = [l for l in lines if l.startswith("ERROR")] or lines or [f"Fehlercode {proc.returncode}"]
         send({"error": errors[-1]})
 
 

@@ -1,9 +1,10 @@
 # Media Downloader (Firefox / Zen)
 
-Download-Knopf direkt in den Aktionsleisten von X, YouTube, TikTok und Instagram. Der Knopf ist eine Kopie des „Teilen“- bzw. „Merken“-Knopfs der jeweiligen Seite und sieht deshalb aus wie ein eigener Knopf der Seite. Ein Klick öffnet ein Menü:
+Download-Knopf direkt in den Aktionsleisten von X, YouTube, TikTok, Instagram und Roblox. Der Knopf ist eine Kopie des „Teilen“- bzw. „Merken“-Knopfs der jeweiligen Seite und sieht deshalb aus wie ein eigener Knopf der Seite. Ein Klick öffnet ein Menü:
 
 - **Ganzes Video downloaden**: speichert sofort, als MP4 oder MP3 (Preset). Bei Slideshows (Instagram, TikTok-Fotos) die gerade sichtbare Folie.
 - **Trimmen**: bei X öffnet sich ein Editor-Fenster, bei YouTube, TikTok und Instagram eine Zuschnitt-Leiste unten auf der Seite. Start und Ende übernimmt man mit „Jetzt“ von der laufenden Stelle.
+- **Roblox** (Spielseite, Knopf neben „Favorit“): lädt die gerade sichtbare Folie der Galerie. Bilder in Originalgröße, wenn man eingeloggt ist, sonst als 768×432-PNG. Trailer in 720p über den Helfer als MP4/MP3.
 - Laufende Downloads lassen sich mit ✕ abbrechen. Der Helfer stoppt yt-dlp und löscht halbe Dateien.
 
 Einstellungen über das Toolbar-Icon oder `about:addons` > Media Downloader > Einstellungen: Format (MP4/MP3), maximale Qualität und Helfer-Status.
@@ -34,7 +35,7 @@ Das Skript setzt die Version, baut `dist/media-downloader.xpi`, trägt die Versi
 
 - `quality.js`: Presets (Format, Qualität) und Auswahl der MP4-Variante.
 - `ui.js`: Bausteine für alle Seiten: Menü, Toast mit ✕, Kopie des nativen Knopfs, Zuschnitt-Leiste und Auftrag an den Helfer. Alles wird ohne `innerHTML` gebaut, weil YouTube Trusted Types erzwingt.
-- `content.js` (X), `site-youtube.js`, `site-tiktok.js`, `site-instagram.js`: wo der Knopf hinkommt und welche URL bzw. Folie geladen wird.
+- `content.js` (X), `site-youtube.js`, `site-tiktok.js`, `site-instagram.js`, `site-roblox.js`: wo der Knopf hinkommt und welche URL bzw. Folie geladen wird.
 - `background.js`: liest bei X die MP4-Links aus den API-Antworten mit (`filterResponseData`, nur Firefox), reicht Aufträge per Native Messaging an den Helfer weiter und speichert Bilder.
 - `editor.html`/`editor.js`: X-Editor. MP4 schneidet [Mediabunny](https://mediabunny.dev) im Browser (`mediabunny.min.mjs`, MPL-2.0, Lizenz in `mediabunny-LICENSE.txt`). MP3 macht der Helfer.
-- `helper/host.py`: Native-Messaging-Helfer. Er lädt mit yt-dlp in den Download-Ordner und bevorzugt H.264. Ausschnitte schneidet er genau mit `--download-sections` und `--force-keyframes-at-cuts`. Bei einem Abbruch (stdin geschlossen) beendet er yt-dlp und räumt auf. Für TikTok und Instagram nutzt er die Cookies aus dem zuletzt benutzten Zen-Profil.
+- `helper/host.py`: Native-Messaging-Helfer. Er lädt mit yt-dlp in den Download-Ordner und bevorzugt H.264. Ausschnitte schneidet er genau mit `--download-sections` und `--force-keyframes-at-cuts`. Bei einem Abbruch (stdin geschlossen) beendet er yt-dlp und räumt auf. Für TikTok und Instagram nutzt er die Cookies aus dem zuletzt benutzten Zen-Profil. Roblox-Trailer sind HLS mit einzelnen WebM-Segmenten und signierten Variablen (`EXT-X-DEFINE`), die yt-dlp nicht kann. Das Add-on baut die Segment-Adressen, und der Helfer setzt sie mit dem concat-Filter von ffmpeg zusammen.
