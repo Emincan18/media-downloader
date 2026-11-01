@@ -93,6 +93,10 @@ def command(job):
     ]
     if job.get("format") == "mp3":
         args += ["-x", "--audio-format", "mp3", "--audio-quality", "0"]
+        if "tiktok.com" in job["url"]:
+            # TikTok bietet als "audio" nur den Original-Sound (Musik). Gesprochenes steckt nur in der
+            # Tonspur des Videos, deshalb das Video laden und daraus den Ton ziehen.
+            args += ["-f", "b[vcodec!=none]/b"]
     else:
         # H.264 vor allem anderen, weil AV1/VP9 viele Programme nicht abspielen; res = kürzere Bildseite.
         res = int(job.get("quality") or 0)
