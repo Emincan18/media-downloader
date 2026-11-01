@@ -135,6 +135,14 @@ def remove_partials(started):
         time.sleep(0.3)
 
 
+def copy_to_clipboard(path):
+    # Als Datei (wie "Kopieren" im Explorer), damit Strg+V sie in Explorer, Discord, Schnittprogramm usw. einfügt.
+    # Pfad über eine Umgebungsvariable: bei -Command landen weitere Argumente nicht in $args.
+    subprocess.run(["powershell", "-NoProfile", "-NonInteractive", "-Command", "Set-Clipboard -LiteralPath $env:XVD_FILE"],
+                   env={**os.environ, "XVD_FILE": str(path)}, stdin=subprocess.DEVNULL, capture_output=True,
+                   creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
+
+
 cancelled = threading.Event()
 
 
@@ -189,6 +197,8 @@ def run(job):
         remove_partials(started)
         return
     if proc.returncode == 0:
+        if job.get("clipboard") and file:
+            copy_to_clipboard(file)
         send({"done": True, "file": file})
     else:
         errors = [l for l in lines if l.startswith("ERROR")] or lines or [f"Fehlercode {proc.returncode}"]
@@ -198,6 +208,10 @@ def run(job):
 if __name__ == "__main__":
     job = read()
     if job.get("type") == "ping":
+        send({"ok": True})
+    elif job.get("type") == "clipboard":
+        # Vom Browser selbst gespeicherte Dateien (X-MP4, Bilder) nachträglich kopieren.
+        copy_to_clipboard(job["path"])
         send({"ok": True})
     else:
         try:

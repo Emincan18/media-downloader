@@ -14,6 +14,8 @@
     #helper { color: #e7e9ea; word-break: break-word; }
     button { font: inherit; color: inherit; background: #16181c; border: 1px solid #2f3336; border-radius: 9999px; padding: 6px 14px; cursor: pointer; }
     button:hover { border-color: #1d9bf0; }
+    label.check { display: flex; align-items: center; gap: 8px; margin: 0; color: #e7e9ea; cursor: pointer; }
+    label.check input { accent-color: #1d9bf0; width: 16px; height: 16px; margin: 0; }
   </style>
 </head>
 <body>
@@ -33,6 +35,8 @@
     <option value="360">bis 360p (kleinste Datei)</option>
   </select>
   <p>Gilt für X, YouTube, TikTok und Instagram, auch als Vorauswahl beim Trimmen. Gibt es die Stufe nicht, nimmt er die nächstkleinere.</p>
+  <p><label class="check"><input type="checkbox" id="clipboard"> Nach dem Download in die Zwischenablage</label></p>
+  <p>Die fertige Datei liegt dann in der Zwischenablage, Strg+V fügt sie ein (Explorer, Discord, Schnittprogramm). Braucht den Helfer.</p>
   <p id="saved"></p>
   <label>Helfer (für YouTube, TikTok, Instagram, MP3)</label>
   <p id="helper">wird geprüft …</p>

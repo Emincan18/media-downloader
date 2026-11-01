@@ -10,10 +10,11 @@ function pickVariant(variants, maxHeight) {
   return fits || variants[variants.length - 1];
 }
 
-// quality: maximale kurze Bildseite (0 = beste), format: "mp4" oder "mp3" für "Ganzes Video downloaden".
+// quality: maximale kurze Bildseite (0 = beste), format: "mp4" oder "mp3" für "Ganzes Video downloaden",
+// clipboard: fertige Datei zusätzlich in die Zwischenablage legen (über den Helfer).
 async function getPresets() {
-  const { quality = 0, format = 'mp4' } = await browser.storage.local.get(['quality', 'format']);
-  return { quality: +quality, format };
+  const { quality = 0, format = 'mp4', clipboard = false } = await browser.storage.local.get(['quality', 'format', 'clipboard']);
+  return { quality: +quality, format, clipboard };
 }
 
 async function getPreset() {

@@ -7,7 +7,7 @@ Download-Knopf direkt in den Aktionsleisten von X, YouTube, TikTok, Instagram un
 - **Roblox** (Spielseite, Knopf neben „Favorit“): lädt die gerade sichtbare Folie der Galerie. Bilder in Originalgröße, wenn man eingeloggt ist, sonst als 768×432-PNG. Trailer in 720p über den Helfer als MP4/MP3.
 - Laufende Downloads lassen sich mit ✕ abbrechen. Der Helfer stoppt yt-dlp und löscht halbe Dateien.
 
-Einstellungen über das Toolbar-Icon oder `about:addons` > Media Downloader > Einstellungen: Format (MP4/MP3), maximale Qualität und Helfer-Status.
+Einstellungen über das Toolbar-Icon oder `about:addons` > Media Downloader > Einstellungen: Format (MP4/MP3), maximale Qualität, „Nach dem Download in die Zwischenablage“ und Helfer-Status. Mit der Zwischenablage-Option legt der Helfer jede fertige Datei als Datei in die Windows-Zwischenablage (`Set-Clipboard -LiteralPath`). Strg+V fügt sie dann in Explorer, Discord oder einem Schnittprogramm ein.
 
 ## Installieren
 

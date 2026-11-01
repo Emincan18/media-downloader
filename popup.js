@@ -6,6 +6,12 @@ for (const f of fields) {
     document.getElementById('saved').textContent = 'Gespeichert ✓';
   };
 }
+const clip = document.getElementById('clipboard');
+getPresets().then(p => { clip.checked = p.clipboard; });
+clip.onchange = async () => {
+  await browser.storage.local.set({ clipboard: clip.checked });
+  document.getElementById('saved').textContent = 'Gespeichert ✓';
+};
 
 // Helfer anpingen und das Ergebnis (oder Zens genaue Fehlermeldung) anzeigen.
 function testHelper() {

@@ -62,7 +62,7 @@ async function getMedia(tweet, keys) {
 browser.runtime.onConnect.addListener(port => {
   if (port.name !== 'job') return;
   port.onMessage.addListener(async job => {
-    const { quality, format } = await getPresets();
+    const { quality, format, clipboard } = await getPresets();
     let native = null, closed = false;
     port.onDisconnect.addListener(() => { closed = true; native?.disconnect(); });
     const start = retry => {
@@ -83,7 +83,7 @@ browser.runtime.onConnect.addListener(port => {
         }
         port.disconnect();
       });
-      native.postMessage({ quality, format, ...job });
+      native.postMessage({ quality, format, clipboard, ...job });
     };
     start(true);
   });
@@ -107,4 +107,13 @@ browser.runtime.onMessage.addListener(msg => {
       return list.length;
     });
   }
+});
+
+// Was das Add-on selbst speichert (X-MP4, Bilder, X-Editor), legt der Helfer nach dem Download
+// in die Zwischenablage, wenn das in den Einstellungen an ist.
+browser.downloads.onChanged.addListener(async delta => {
+  if (delta.state?.current !== 'complete') return;
+  const [item] = await browser.downloads.search({ id: delta.id });
+  if (item?.byExtensionId !== browser.runtime.id || !(await getPresets()).clipboard) return;
+  browser.runtime.sendNativeMessage('media_downloader', { type: 'clipboard', path: item.filename }).catch(() => {});
 });
