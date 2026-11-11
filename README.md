@@ -4,6 +4,7 @@ Download-Knopf direkt in den Aktionsleisten von X, YouTube, TikTok, Instagram un
 
 - **Ganzes Video downloaden**: speichert sofort, als MP4 oder MP3 (Preset). Bei Slideshows (Instagram, TikTok-Fotos) die gerade sichtbare Folie.
 - **Trimmen**: bei X öffnet sich ein Editor-Fenster, bei YouTube, TikTok und Instagram eine Zuschnitt-Leiste unten auf der Seite. Start und Ende übernimmt man mit „Jetzt“ von der laufenden Stelle.
+- **Roblox-Kacheln** (Home, Charts, Suche): Beim Hovern erscheint oben links auf dem Bild ein runder Download-Knopf. Er speichert das Thumbnail als PNG (breite Bilder 768×432, Icons 512×512).
 - **Roblox** (Spielseite, Knopf neben „Favorit“): lädt die gerade sichtbare Folie der Galerie. Bilder in Originalgröße, wenn man eingeloggt ist, sonst als 768×432-PNG. Trailer in 720p über den Helfer als MP4/MP3.
 - Laufende Downloads lassen sich mit ✕ abbrechen. Der Helfer stoppt yt-dlp und löscht halbe Dateien.
 
@@ -11,7 +12,12 @@ Einstellungen über das Toolbar-Icon oder `about:addons` > Media Downloader > Ei
 
 ## Installieren
 
-1. Helfer installieren (einmalig, für YouTube, TikTok, Instagram und MP3): `helper\install.bat` per Doppelklick im Explorer starten.
+1. Helfer installieren (einmalig, für YouTube, TikTok, Instagram und MP3). Am einfachsten in PowerShell:
+   ```
+   irm https://raw.githubusercontent.com/Emincan18/media-downloader/main/helper/setup.ps1 | iex
+   ```
+   Das installiert fehlendes Python, ffmpeg und Node per winget und richtet den Helfer ein. Danach Zen neu starten. Das Add-on-Fenster zeigt diesen Befehl auch an, wenn der Helfer fehlt.
+   Alternativ mit dem Repo: `helper\install.bat` per Doppelklick im Explorer starten.
    Er braucht Python, ffmpeg und Node. Das Skript kopiert `host.py` nach `%LOCALAPPDATA%\MediaDownloader`, installiert `yt-dlp[default,curl-cffi]` und meldet den Helfer bei Firefox/Zen an (Registry `HKCU\Software\Mozilla\NativeMessagingHosts\media_downloader`).
    **Nicht aus der Claude-Desktop-App heraus ausführen.** Die App läuft als MSIX-Paket, und Schreibzugriffe auf Registry und AppData landen dann in ihrem privaten Bereich (`%LOCALAPPDATA%\Packages\Claude_…\LocalCache`). Zen sieht den Helfer dann nicht ("No such native application media_downloader"). Aus der App heraus geht es nur über `explorer.exe helper\install.bat`.
 2. In Zen `about:config` öffnen und `xpinstall.signatures.required` auf `false` setzen.

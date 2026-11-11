@@ -207,3 +207,27 @@
 /* Roblox: Like-Leiste rutscht durch den Download-Knopf in eine eigene Zeile, dort mittig.
    !important, weil Roblox' eigene Regel (float: left) spezifischer ist. */
 .xvd-roblox-bar > .voting-panel { float: none !important; clear: both; margin: 8px auto 0 !important; }
+
+/* Roblox: Download-Knopf auf Spiel-Kacheln, oben links auf dem Bild, beim Hovern sichtbar (wie Roblox' "…"-Knopf). */
+.xvd-tile-btn {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(25, 27, 29, 0.8);
+  color: #fff;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.xvd-tile-btn svg { width: 18px; height: 18px; }
+a:hover .xvd-tile-btn, .game-card-container:hover .xvd-tile-btn, .xvd-tile-btn:focus-visible { opacity: 1; }
+.xvd-tile-btn:hover { background: rgba(57, 59, 61, 0.95); }

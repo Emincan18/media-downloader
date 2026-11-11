@@ -22,9 +22,19 @@ function testHelper() {
   port.onMessage.addListener(msg => {
     done = true;
     out.textContent = msg.ok ? 'Verbunden ✓' : msg.error || JSON.stringify(msg);
+    // Fehlt der Helfer, gleich den Ein-Befehl-Installer zeigen.
+    document.getElementById('setup').hidden = !!msg.ok;
   });
-  port.onDisconnect.addListener(() => { if (!done) out.textContent = 'Keine Antwort vom Helfer.'; });
+  port.onDisconnect.addListener(() => {
+    if (done) return;
+    out.textContent = 'Keine Antwort vom Helfer.';
+    document.getElementById('setup').hidden = false;
+  });
   port.postMessage({ type: 'ping' });
 }
 document.getElementById('test').onclick = testHelper;
+document.getElementById('copy').onclick = async () => {
+  await navigator.clipboard.writeText(document.getElementById('cmd').textContent);
+  document.getElementById('copy').textContent = 'Kopiert ✓';
+};
 testHelper();

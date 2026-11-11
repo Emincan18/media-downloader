@@ -125,4 +125,33 @@ function scan() {
   fav.parentElement.classList.add('xvd-roblox-bar');
 }
 
-watch(scan);
+// Spiel-Kacheln (Home "Recommended For You", Charts, Suche): runder Download-Knopf oben links auf dem Bild,
+// sichtbar beim Hovern wie Roblox' "…"-Knopf. Größe und Format stehen frei in der tr.rbxcdn.com-Adresse:
+// breite Thumbnails gibt es bis 768x432, Icons bis 512x512.
+function tileImageUrl(img) {
+  const wide = img.naturalWidth > img.naturalHeight * 1.3 || img.width > img.height * 1.3;
+  return img.src.replace(/\/\d+\/\d+\/Image\/\w+\//, wide ? '/768/432/Image/Png/' : '/512/512/Image/Png/');
+}
+
+function scanTiles() {
+  const imgs = document.querySelectorAll(':is(a[href*="/games/"], .game-card-container) img[src*="tr.rbxcdn.com"]:not([data-xvd-tile])');
+  for (const img of imgs) {
+    img.dataset.xvdTile = '';
+    // Breite Kacheln (Home) legen beim Hovern eine Video-Vorschau über das Bild: Knopf an den äußeren Container.
+    const box = img.closest('.featured-game-icon-container, .game-card-thumb-container, [class*="thumb" i]') || img.parentElement;
+    if (getComputedStyle(box).position === 'static') box.style.position = 'relative';
+    const btn = h('button', { class: 'xvd-tile-btn', type: 'button', title: 'Thumbnail downloaden', 'aria-label': 'Thumbnail downloaden' }, svgIcon(ICON));
+    btn.addEventListener('click', e => {
+      // Die Kachel ist ein Link: Klick nicht zur Spielseite durchlassen.
+      e.preventDefault();
+      e.stopPropagation();
+      const tile = img.closest('a, .game-card-container');
+      const name = (img.alt || tile?.querySelector('[title]')?.title || 'Spiel').replace(/[\\/:*?"<>|]+/g, '').trim();
+      browser.runtime.sendMessage({ type: 'save', url: tileImageUrl(img), filename: `Roblox - ${name}.png` });
+      toast('Download gestartet');
+    });
+    box.append(btn);
+  }
+}
+
+watch(() => { scan(); scanTiles(); });

@@ -14,6 +14,7 @@
     #helper { color: #e7e9ea; word-break: break-word; }
     button { font: inherit; color: inherit; background: #16181c; border: 1px solid #2f3336; border-radius: 9999px; padding: 6px 14px; cursor: pointer; }
     button:hover { border-color: #1d9bf0; }
+    code { display: block; padding: 6px 8px; border-radius: 6px; background: #16181c; color: #e7e9ea; font-size: 12px; word-break: break-all; user-select: all; }
     label.check { display: flex; align-items: center; gap: 8px; margin: 0; color: #e7e9ea; cursor: pointer; }
     label.check input { accent-color: #1d9bf0; width: 16px; height: 16px; margin: 0; }
   </style>
@@ -40,6 +41,11 @@
   <p id="saved"></p>
   <label>Helfer (für YouTube, TikTok, Instagram, MP3)</label>
   <p id="helper">wird geprüft …</p>
+  <div id="setup" hidden>
+    <p>So installierst du ihn: PowerShell öffnen (Windows-Taste, „PowerShell“ tippen), diesen Befehl einfügen, Enter, danach Zen neu starten.</p>
+    <p><code id="cmd">irm https://raw.githubusercontent.com/Emincan18/media-downloader/main/helper/setup.ps1 | iex</code></p>
+    <p><button id="copy" type="button">Befehl kopieren</button></p>
+  </div>
   <p><button id="test" type="button">Helfer testen</button></p>
   <script src="quality.js"></script>
   <script src="popup.js"></script>
